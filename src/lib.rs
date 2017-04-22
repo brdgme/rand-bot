@@ -70,10 +70,10 @@ pub fn cli<I, O>(input: I, output: &mut O)
 
 impl<T: Gamer> Botter<T> for RandBot {
     fn commands(_player: usize,
-                _pub_state: T::PubState,
+                _pub_state: &T::PubState,
                 _players: &[String],
-                command_spec: command::Specs)
+                command_spec: &command::Specs)
                 -> Vec<String> {
-        commands(&command_spec)
+        commands(command_spec)
     }
 }
