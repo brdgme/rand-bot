@@ -48,8 +48,9 @@ impl<T: Gamer> Botter<T> for RandBot {
                 command_spec: command::Specs)
                 -> Vec<String> {
         let mut rng = rand::thread_rng();
-        spec_entry(&command_spec,
-                   &command_spec.specs.get(&command_spec.entry).unwrap(),
-                   &mut rng)
+        vec![spec_entry(&command_spec,
+                        &command_spec.specs.get(&command_spec.entry).unwrap(),
+                        &mut rng)
+                     .join(" ")]
     }
 }
