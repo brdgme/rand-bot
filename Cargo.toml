@@ -1,0 +1,8 @@
+[package]
+name = "rand-bot"
+version = "0.1.0"
+authors = ["Michael Alexander"]
+
+[dependencies]
+brdgme-game = { git = "https://github.com/brdgme/game.git" }
+rand = "0.3.15"
