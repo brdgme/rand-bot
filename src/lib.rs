@@ -47,10 +47,7 @@ fn spec_entry(specs: &command::Specs, spec: &command::Spec, rng: &mut ThreadRng)
 
 fn commands(command_spec: &command::Specs) -> Vec<String> {
     let mut rng = rand::thread_rng();
-    vec![spec_entry(command_spec,
-                    &command_spec.specs[&command_spec.entry],
-                    &mut rng)
-                 .join(" ")]
+    vec![spec_entry(command_spec, &command_spec.entry, &mut rng).join(" ")]
 }
 
 // / Most bots just want to use `brdgme_cmd::bot_cli`, however because RandBot
