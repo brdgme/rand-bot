@@ -69,7 +69,8 @@ pub fn cli<I, O>(input: I, output: &mut O)
 }
 
 impl<T: Gamer> Botter<T> for RandBot {
-    fn commands(_player: usize,
+    fn commands(&mut self,
+                _player: usize,
                 _pub_state: &T::PubState,
                 _players: &[String],
                 command_spec: &command::Specs)
