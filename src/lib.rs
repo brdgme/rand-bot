@@ -35,7 +35,7 @@ fn spec_to_command(spec: &command::Spec, rng: &mut ThreadRng) -> Vec<String> {
                          bounded_i32(rng.gen(), min.unwrap_or(i32::MIN), max.unwrap_or(i32::MAX)))]
         }
         command::Spec::Token(ref token) => vec![token.to_owned()],
-        command::Spec::Enum(ref values) => vec![rng.choose(values).unwrap().to_owned()],
+        command::Spec::Enum { ref values, .. } => vec![rng.choose(values).unwrap().to_owned()],
         command::Spec::OneOf(ref options) => spec_to_command(rng.choose(options).unwrap(), rng),
         command::Spec::Chain(ref chain) => {
             chain
