@@ -1,3 +1,5 @@
+#![feature(box_patterns)]
+
 extern crate rand;
 extern crate serde_json;
 
@@ -26,28 +28,53 @@ fn bounded_i32(v: i32, min: i32, max: i32) -> i32 {
     min + (v - min) % range_size
 }
 
-fn spec_entry(specs: &command::Specs, spec: &command::Spec, rng: &mut ThreadRng) -> Vec<String> {
-    match spec.kind {
-        command::Kind::Int { min, max } => {
+fn spec_to_command(spec: &command::Spec, rng: &mut ThreadRng) -> Vec<String> {
+    match *spec {
+        command::Spec::Int { min, max } => {
             vec![format!("{}",
                          bounded_i32(rng.gen(), min.unwrap_or(i32::MIN), max.unwrap_or(i32::MAX)))]
         }
-        command::Kind::Token(ref token) => vec![token.to_owned()],
-        command::Kind::Ref(ref cmd) => spec_entry(specs, &specs.specs[cmd], rng),
-        command::Kind::Enum(ref values) => vec![rng.choose(values).unwrap().to_owned()],
-        command::Kind::OneOf(ref options) => spec_entry(specs, rng.choose(options).unwrap(), rng),
-        command::Kind::Chain(ref chain) => {
+        command::Spec::Token(ref token) => vec![token.to_owned()],
+        command::Spec::Enum(ref values) => vec![rng.choose(values).unwrap().to_owned()],
+        command::Spec::OneOf(ref options) => spec_to_command(rng.choose(options).unwrap(), rng),
+        command::Spec::Chain(ref chain) => {
             chain
                 .iter()
-                .flat_map(|c| spec_entry(specs, c, rng))
+                .flat_map(|c| spec_to_command(c, rng))
                 .collect()
         }
+        command::Spec::Opt(box ref spec) => {
+            if rng.gen() {
+                spec_to_command(spec, rng)
+            } else {
+                vec![]
+            }
+        }
+        command::Spec::Many {
+            box ref spec,
+            min,
+            max,
+            ref delim,
+        } => {
+            let min = min.unwrap_or(0) as i32;
+            let max = max.unwrap_or(3) as i32;
+            let n = bounded_i32(rng.gen(), min, max);
+            let mut parts: Vec<String> = vec![];
+            for i in 0..n {
+                if i != 0 {
+                    parts.push(delim.to_owned());
+                }
+                parts.extend(spec_to_command(spec, rng));
+            }
+            parts
+        }
+        command::Spec::Doc { box ref spec, .. } => spec_to_command(spec, rng),
     }
 }
 
-fn commands(command_spec: &command::Specs) -> Vec<String> {
+fn commands(command_spec: &command::Spec) -> Vec<String> {
     let mut rng = rand::thread_rng();
-    vec![spec_entry(command_spec, &command_spec.entry, &mut rng).join(" ")]
+    vec![spec_to_command(command_spec, &mut rng).join(" ")]
 }
 
 // / Most bots just want to use `brdgme_cmd::bot_cli`, however because RandBot
@@ -70,7 +97,7 @@ impl<T: Gamer> Botter<T> for RandBot {
                 _player: usize,
                 _pub_state: &T::PubState,
                 _players: &[String],
-                command_spec: &command::Specs)
+                command_spec: &command::Spec)
                 -> Vec<String> {
         commands(command_spec)
     }
