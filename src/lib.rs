@@ -28,7 +28,7 @@ fn bounded_i32(v: i32, min: i32, max: i32) -> i32 {
     min + (v - min) % range_size
 }
 
-fn spec_to_command(spec: &command::Spec, rng: &mut ThreadRng) -> Vec<String> {
+fn spec_to_command(spec: &command::Spec, players: &[String], rng: &mut ThreadRng) -> Vec<String> {
     match *spec {
         command::Spec::Int { min, max } => {
             vec![format!("{}",
@@ -36,16 +36,18 @@ fn spec_to_command(spec: &command::Spec, rng: &mut ThreadRng) -> Vec<String> {
         }
         command::Spec::Token(ref token) => vec![token.to_owned()],
         command::Spec::Enum { ref values, .. } => vec![rng.choose(values).unwrap().to_owned()],
-        command::Spec::OneOf(ref options) => spec_to_command(rng.choose(options).unwrap(), rng),
+        command::Spec::OneOf(ref options) => {
+            spec_to_command(rng.choose(options).unwrap(), players, rng)
+        }
         command::Spec::Chain(ref chain) => {
             chain
                 .iter()
-                .flat_map(|c| spec_to_command(c, rng))
+                .flat_map(|c| spec_to_command(c, players, rng))
                 .collect()
         }
         command::Spec::Opt(box ref spec) => {
             if rng.gen() {
-                spec_to_command(spec, rng)
+                spec_to_command(spec, players, rng)
             } else {
                 vec![]
             }
@@ -64,17 +66,18 @@ fn spec_to_command(spec: &command::Spec, rng: &mut ThreadRng) -> Vec<String> {
                 if i != 0 {
                     parts.push(delim.to_owned());
                 }
-                parts.extend(spec_to_command(spec, rng));
+                parts.extend(spec_to_command(spec, players, rng));
             }
             parts
         }
-        command::Spec::Doc { box ref spec, .. } => spec_to_command(spec, rng),
+        command::Spec::Doc { box ref spec, .. } => spec_to_command(spec, players, rng),
+        command::Spec::Player => vec![rng.choose(players).unwrap().to_owned()],
     }
 }
 
-fn commands(command_spec: &command::Spec) -> Vec<String> {
+fn commands(command_spec: &command::Spec, players: &[String]) -> Vec<String> {
     let mut rng = rand::thread_rng();
-    vec![spec_to_command(command_spec, &mut rng).join(" ")]
+    vec![spec_to_command(command_spec, players, &mut rng).join(" ")]
 }
 
 // / Most bots just want to use `brdgme_cmd::bot_cli`, however because RandBot
@@ -88,7 +91,7 @@ pub fn cli<I, O>(input: I, output: &mut O)
     let request = serde_json::from_reader::<_, bot_cli::Request>(input).unwrap();
     writeln!(output,
              "{}",
-             serde_json::to_string(&commands(&request.command_spec)).unwrap())
+             serde_json::to_string(&commands(&request.command_spec, &request.players)).unwrap())
             .unwrap();
 }
 
@@ -96,9 +99,9 @@ impl<T: Gamer> Botter<T> for RandBot {
     fn commands(&mut self,
                 _player: usize,
                 _pub_state: &T::PubState,
-                _players: &[String],
+                players: &[String],
                 command_spec: &command::Spec)
                 -> Vec<String> {
-        commands(command_spec)
+        commands(command_spec, players)
     }
 }
