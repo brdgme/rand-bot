@@ -72,6 +72,7 @@ fn spec_to_command(spec: &command::Spec, players: &[String], rng: &mut ThreadRng
         }
         command::Spec::Doc { box ref spec, .. } => spec_to_command(spec, players, rng),
         command::Spec::Player => vec![rng.choose(players).unwrap().to_owned()],
+        command::Spec::Space => vec![" ".to_string()],
     }
 }
 
