@@ -2,6 +2,7 @@
 
 extern crate rand;
 extern crate serde_json;
+extern crate chrono;
 
 extern crate brdgme_game;
 extern crate brdgme_cmd;
@@ -9,7 +10,7 @@ extern crate brdgme_cmd;
 use rand::{Rng, ThreadRng};
 
 use brdgme_game::Gamer;
-use brdgme_game::bot::Botter;
+use brdgme_game::bot::{Botter, Fuzzer};
 use brdgme_game::command;
 use brdgme_cmd::bot_cli;
 
@@ -104,5 +105,21 @@ impl<T: Gamer> Botter<T> for RandBot {
                 command_spec: &command::Spec)
                 -> Vec<String> {
         commands(command_spec, players)
+    }
+}
+
+pub fn fuzz<G, O>(out: &mut O)
+    where G: Gamer,
+          O: Write
+{
+    let mut last_status = chrono::UTC::now().timestamp();
+    let mut f = Fuzzer::<G, _>::new(RandBot {});
+    loop {
+        f.next();
+        let now = chrono::UTC::now().timestamp();
+        if now - last_status > 1 {
+            last_status = now;
+            writeln!(out, "{}", f.status()).unwrap();
+        }
     }
 }
