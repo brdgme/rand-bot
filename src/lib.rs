@@ -32,8 +32,12 @@ fn bounded_i32(v: i32, min: i32, max: i32) -> i32 {
 fn spec_to_command(spec: &command::Spec, players: &[String], rng: &mut ThreadRng) -> Vec<String> {
     match *spec {
         command::Spec::Int { min, max } => {
-            vec![format!("{}",
-                         bounded_i32(rng.gen(), min.unwrap_or(i32::MIN), max.unwrap_or(i32::MAX)))]
+            vec![
+                format!(
+                    "{}",
+                    bounded_i32(rng.gen(), min.unwrap_or(i32::MIN), max.unwrap_or(i32::MAX))
+                ),
+            ]
         }
         command::Spec::Token(ref token) => vec![token.to_owned()],
         command::Spec::Enum { ref values, .. } => vec![rng.choose(values).unwrap().to_owned()],
@@ -87,30 +91,35 @@ fn commands(command_spec: &command::Spec, players: &[String]) -> Vec<String> {
 // the CLI here. This allows the bot to be used / with arbitrary games as long
 // as the command spec is generated.
 pub fn cli<I, O>(input: I, output: &mut O)
-    where I: Read,
-          O: Write
+where
+    I: Read,
+    O: Write,
 {
     let request = serde_json::from_reader::<_, bot_cli::Request>(input).unwrap();
-    writeln!(output,
-             "{}",
-             serde_json::to_string(&commands(&request.command_spec, &request.players)).unwrap())
-            .unwrap();
+    writeln!(
+        output,
+        "{}",
+        serde_json::to_string(&commands(&request.command_spec, &request.players)).unwrap()
+    ).unwrap();
 }
 
 impl<T: Gamer> Botter<T> for RandBot {
-    fn commands(&mut self,
-                _player: usize,
-                _pub_state: &T::PubState,
-                players: &[String],
-                command_spec: &command::Spec)
-                -> Vec<String> {
+    fn commands(
+        &mut self,
+        _player: usize,
+        _pub_state: &T::PubState,
+        players: &[String],
+        command_spec: &command::Spec,
+        _game_id: Option<String>,
+    ) -> Vec<String> {
         commands(command_spec, players)
     }
 }
 
 pub fn fuzz<G, O>(out: &mut O)
-    where G: Gamer,
-          O: Write
+where
+    G: Gamer,
+    O: Write,
 {
     let mut last_status = chrono::UTC::now().timestamp();
     let mut f = Fuzzer::<G, _>::new(RandBot {});
