@@ -121,11 +121,11 @@ where
     G: Gamer,
     O: Write,
 {
-    let mut last_status = chrono::UTC::now().timestamp();
+    let mut last_status = chrono::Utc::now().timestamp();
     let mut f = Fuzzer::<G, _>::new(RandBot {});
     loop {
         f.next();
-        let now = chrono::UTC::now().timestamp();
+        let now = chrono::Utc::now().timestamp();
         if now - last_status > 1 {
             last_status = now;
             writeln!(out, "{}", f.status()).unwrap();
