@@ -10,7 +10,7 @@ extern crate brdgme_cmd;
 use rand::{Rng, ThreadRng};
 
 use brdgme_game::Gamer;
-use brdgme_game::bot::{Botter, Fuzzer};
+use brdgme_game::bot::{Botter, Fuzzer, BotCommand};
 use brdgme_game::command;
 use brdgme_cmd::bot_cli;
 
@@ -81,9 +81,13 @@ fn spec_to_command(spec: &command::Spec, players: &[String], rng: &mut ThreadRng
     }
 }
 
-fn commands(command_spec: &command::Spec, players: &[String]) -> Vec<String> {
+fn commands(command_spec: &command::Spec, players: &[String]) -> Vec<BotCommand> {
     let mut rng = rand::thread_rng();
-    vec![spec_to_command(command_spec, players, &mut rng).join(" ")]
+    vec![
+        spec_to_command(command_spec, players, &mut rng)
+            .join(" ")
+            .into(),
+    ]
 }
 
 // / Most bots just want to use `brdgme_cmd::bot_cli`, however because RandBot
@@ -111,7 +115,7 @@ impl<T: Gamer> Botter<T> for RandBot {
         players: &[String],
         command_spec: &command::Spec,
         _game_id: Option<String>,
-    ) -> Vec<String> {
+    ) -> Vec<BotCommand> {
         commands(command_spec, players)
     }
 }

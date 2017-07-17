@@ -76,7 +76,7 @@ dependencies = [
 [[package]]
 name = "brdgme-game"
 version = "0.1.0"
-source = "git+https://github.com/brdgme/game.git#47368ad4a80283e3fe32a077c4de465123902b01"
+source = "git+https://github.com/brdgme/game.git#af0e791892559fbf67500a7bd1694a828794762c"
 dependencies = [
  "brdgme-color 0.1.0 (git+https://github.com/brdgme/color.git)",
  "brdgme-markup 0.1.0 (git+https://github.com/brdgme/markup.git)",
