@@ -111,7 +111,7 @@ impl<T: Gamer> Botter<T> for RandBot {
     fn commands(
         &mut self,
         _player: usize,
-        _pub_state: &T::PubState,
+        _player_state: &T::PlayerState,
         players: &[String],
         command_spec: &command::Spec,
         _game_id: Option<String>,
