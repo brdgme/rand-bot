@@ -20,9 +20,7 @@ use std::io::{Read, Write};
 pub struct RandBot;
 
 fn bounded_i32(v: i32, min: i32, max: i32) -> i32 {
-    if min > max {
-        return min;
-    }
+    assert!(min <= max);
     let mut v = v;
     let range_size = max - min + 1;
     if v < min {
