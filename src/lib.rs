@@ -1,18 +1,18 @@
 #![feature(box_patterns)]
 
+extern crate chrono;
 extern crate rand;
 extern crate serde_json;
-extern crate chrono;
 
-extern crate brdgme_game;
 extern crate brdgme_cmd;
+extern crate brdgme_game;
 
 use rand::{Rng, ThreadRng};
 
-use brdgme_game::Gamer;
-use brdgme_game::bot::{Botter, Fuzzer, BotCommand};
-use brdgme_game::command;
 use brdgme_cmd::bot_cli;
+use brdgme_game::bot::{BotCommand, Botter, Fuzzer};
+use brdgme_game::command;
+use brdgme_game::Gamer;
 
 use std::i32;
 use std::io::{Read, Write};
@@ -29,27 +29,25 @@ fn bounded_i32(v: i32, min: i32, max: i32) -> i32 {
     min + (v - min) % range_size
 }
 
-fn spec_to_command(spec: &command::Spec, players: &[String], rng: &mut ThreadRng) -> Vec<String> {
+pub fn spec_to_command(
+    spec: &command::Spec,
+    players: &[String],
+    rng: &mut ThreadRng,
+) -> Vec<String> {
     match *spec {
-        command::Spec::Int { min, max } => {
-            vec![
-                format!(
-                    "{}",
-                    bounded_i32(rng.gen(), min.unwrap_or(i32::MIN), max.unwrap_or(i32::MAX))
-                ),
-            ]
-        }
+        command::Spec::Int { min, max } => vec![format!(
+            "{}",
+            bounded_i32(rng.gen(), min.unwrap_or(i32::MIN), max.unwrap_or(i32::MAX))
+        )],
         command::Spec::Token(ref token) => vec![token.to_owned()],
         command::Spec::Enum { ref values, .. } => vec![rng.choose(values).unwrap().to_owned()],
         command::Spec::OneOf(ref options) => {
             spec_to_command(rng.choose(options).unwrap(), players, rng)
         }
-        command::Spec::Chain(ref chain) => {
-            chain
-                .iter()
-                .flat_map(|c| spec_to_command(c, players, rng))
-                .collect()
-        }
+        command::Spec::Chain(ref chain) => chain
+            .iter()
+            .flat_map(|c| spec_to_command(c, players, rng))
+            .collect(),
         command::Spec::Opt(box ref spec) => {
             if rng.gen() {
                 spec_to_command(spec, players, rng)

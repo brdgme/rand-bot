@@ -1,14 +1,3 @@
-[root]
-name = "brdgme-rand-bot"
-version = "0.1.0"
-dependencies = [
- "brdgme-cmd 0.1.0 (git+https://github.com/brdgme/cmd.git)",
- "brdgme-game 0.1.0 (git+https://github.com/brdgme/game.git)",
- "chrono 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rand 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
 [[package]]
 name = "aho-corasick"
 version = "0.6.3"
@@ -100,6 +89,17 @@ dependencies = [
  "error-chain 0.10.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.10 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "brdgme-rand-bot"
+version = "0.1.0"
+dependencies = [
+ "brdgme-cmd 0.1.0 (git+https://github.com/brdgme/cmd.git)",
+ "brdgme-game 0.1.0 (git+https://github.com/brdgme/game.git)",
+ "chrono 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rand 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
