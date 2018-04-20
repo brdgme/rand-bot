@@ -21,12 +21,14 @@ pub struct RandBot;
 
 fn bounded_i32(v: i32, min: i32, max: i32) -> i32 {
     assert!(min <= max);
-    let mut v = v;
-    let range_size = max - min + 1;
-    if v < min {
-        v += range_size * ((min - v) / range_size + 1);
+    let mut v = v as i64;
+    let min64 = min as i64;
+    let max64 = max as i64;
+    let range_size = max64 - min64 + 1;
+    if v < min64 {
+        v += range_size * ((min64 - v) / range_size + 1);
     }
-    min + (v - min) % range_size
+    (min64 + (v - min64) % range_size) as i32
 }
 
 pub fn spec_to_command(
