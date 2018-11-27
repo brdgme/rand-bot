@@ -2,6 +2,7 @@
 name = "brdgme-rand-bot"
 version = "0.1.0"
 authors = ["Michael Alexander"]
+edition = "2018"
 
 [dependencies]
 brdgme-game = { git = "https://github.com/brdgme/game.git" }

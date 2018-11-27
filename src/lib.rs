@@ -1,12 +1,5 @@
 #![feature(box_patterns)]
 
-extern crate chrono;
-extern crate rand;
-extern crate serde_json;
-
-extern crate brdgme_cmd;
-extern crate brdgme_game;
-
 use rand::{Rng, ThreadRng};
 
 use brdgme_cmd::bot_cli;
